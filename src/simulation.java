@@ -21,34 +21,30 @@ public class simulation {
     private JButton resetButton;
     private JButton startButton;
     private JButton pauseButton;
-    private JButton resetWallsButton;
-    // lines
+    // minisimulations
     private ArrayList<miniSimulation> miniSimulations;
-    private int wallSize = 250;
-    private int lineSize = 600;
-    private int offset = 50;
-    private CustomLine startLine = new CustomLine(offset,offset,offset,lineSize + offset);
-    private CustomLine endLine = new CustomLine(width - offset,offset, width - offset, lineSize + offset);
+    private int wallHeight;
+    private int wallWidth;
     private Color wallColor = Color.black;
-    // cars 
-    private List<Car> cars;
-    private int carHeight = lineSize/4;
-    private int carWidth = 40;
+    // cars
+    private int carHeight;
+    private int carWidth;
     private Color carColor = new Color(93,207,140);
     private Color parkedCarColor = new Color(254,77,77);
     // simulation parameters
     private Timer timer;
-    private int particlesNumber = 50;
+    private int miniSimulationRowNumber = 1;
+    private int miniSimulationColumnNumber = 1;
     // evolution
     private JButton evolutionStartButton;
     private JButton evolutionPauseButton;
     private Timer evolutionTimer;
     private int generation = 1;
-    private boolean evolving = false;
-    private double bigMutation = 0.3;
-    private double smallMutation = 0.3;
-    private double reproduction = 0.4;
-    private double smallMutationSize = 16;
+    // private boolean evolving = false;
+    // private double bigMutation = 0.3;
+    // private double smallMutation = 0.3;
+    // private double reproduction = 0.4;
+    // private double smallMutationSize = 16;
 
     public simulation() {
         frame = new JFrame("Simulation évolution");
@@ -62,10 +58,23 @@ public class simulation {
         JPanel generationDisplayPanel = new JPanel();
         JLabel generationDisplayLabel = new JLabel();
 
-        // lines
+        // minisimulations
         miniSimulations = new ArrayList<>();
-        miniSimulations.add(new miniSimulation(300, 200, wallSize, wallColor, parkedCarColor));
-
+        wallHeight = Math.min(width/(miniSimulationColumnNumber+1),height/(miniSimulationRowNumber+1));
+        wallWidth = 2*wallHeight/3;
+        carHeight = wallHeight/4;
+        carWidth = carHeight*2/3;
+        int xi = (int) wallHeight/(miniSimulationColumnNumber+1);
+        int yi = (int) wallHeight/(miniSimulationRowNumber+1);
+        for(int i = 0 ; i<miniSimulationRowNumber ; i++){
+            xi = wallHeight/(miniSimulationColumnNumber+1);
+            for(int j = 0; j<miniSimulationColumnNumber; j++){
+                miniSimulations.add(new miniSimulation(xi, yi, wallHeight, wallWidth, wallColor, parkedCarColor, carHeight, carWidth, carColor));
+                xi += xi + wallHeight ;
+            }
+            yi += yi + wallHeight;
+        }
+        System.out.println(miniSimulations);
         // // add a wall by clicking
         // panel.addMouseListener(new MouseAdapter() {
         //     @Override
@@ -88,19 +97,16 @@ public class simulation {
         // });
 
         // cars
-        cars = new ArrayList<>();
-        cars.add(new Car(500,500,carHeight,carWidth,carColor));
 
         // buttons
         startButton = new JButton("Start");
         pauseButton = new JButton("Pause");
         resetButton = new JButton("Reset particles");
-        resetWallsButton = new JButton("Reset walls");
 
         startButton.setBackground(Color.GREEN);
         pauseButton.setBackground(new Color(255,60,60));
         resetButton.setBackground(new Color(110,110,255));
-        resetWallsButton.setBackground(new Color(110,110,255));
+
         /* 
         timer = new Timer(5, e -> {
             for (Particule p : particles) {
@@ -139,22 +145,12 @@ public class simulation {
             panel.repaint();
         });
         */
-        // resetWallsButton.addActionListener(e -> {
-        //     if(!timer.isRunning() && !evolutionTimer.isRunning()){
-        //         System.out.println("Reset walls!");
-        //         walls = new ArrayList<>();
-        //         panel.repaint();
-        //     }else{
-        //         System.out.println("Please stop the simulation first!");
-        //     }
-        // });
 
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.setBackground(backgroundColor);
         buttonPanel.add(startButton);
         buttonPanel.add(pauseButton);
         buttonPanel.add(resetButton);
-        buttonPanel.add(resetWallsButton);
 
         // // evolution
         // // timer
@@ -168,10 +164,10 @@ public class simulation {
         //     timer.start();
         // });
         // // button
-        // evolutionStartButton = new JButton("Start Evolution");
-        // evolutionPauseButton = new JButton("Pause Evolution");
-        // evolutionStartButton.setBackground(new Color(110,110,255));
-        // evolutionPauseButton.setBackground(new Color(110,110,255));
+        evolutionStartButton = new JButton("Start Evolution");
+        evolutionPauseButton = new JButton("Pause Evolution");
+        evolutionStartButton.setBackground(new Color(110,110,255));
+        evolutionPauseButton.setBackground(new Color(110,110,255));
         // /*
         // evolutionStartButton.addActionListener(e -> {
         //     if(particlesAtStart()){
@@ -195,15 +191,15 @@ public class simulation {
         //     evolutionTimer.stop();
         // });
         // // display
-        // generationDisplayLabel.setText("  Generation : " + generation + "  ");
-        // generationDisplayPanel.add(generationDisplayLabel);
-        // generationDisplayPanel.setBackground(new Color(110,110,255));
-        // // evolution panel
-        // evolutionPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        // evolutionPanel.setBackground(new Color(140, 220, 255));
-        // evolutionPanel.add(evolutionStartButton);
-        // evolutionPanel.add(evolutionPauseButton);
-        // evolutionPanel.add(generationDisplayPanel);
+        generationDisplayLabel.setText("  Generation : " + generation + "  ");
+        generationDisplayPanel.add(generationDisplayLabel);
+        generationDisplayPanel.setBackground(new Color(110,110,255));
+        // evolution panel
+        evolutionPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        evolutionPanel.setBackground(backgroundColor);
+        evolutionPanel.add(evolutionStartButton);
+        evolutionPanel.add(evolutionPauseButton);
+        evolutionPanel.add(generationDisplayPanel);
 
         // container
         JPanel containerPanel = new JPanel();
@@ -228,16 +224,9 @@ public class simulation {
             g2d.setStroke(new BasicStroke(2));
 
             g2d.setColor(Color.BLACK);
-            g2d.drawLine(startLine.getStartX(),startLine.getStartY(),startLine.getEndX(),startLine.getEndY());
-            g2d.drawLine(endLine.getStartX(),endLine.getStartY(),endLine.getEndX(),endLine.getEndY());
             g2d.setColor(new Color(100,100,0));
             for(miniSimulation s : miniSimulations) {
                 s.draw(g2d);
-            }
-            
-            g2d.setStroke(new BasicStroke(1));
-            for (Car p : cars) {
-                p.draw(g);
             }
         }
     }

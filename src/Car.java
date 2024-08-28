@@ -1,10 +1,14 @@
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.ArrayList;
 
 public class Car {
     private int x, y;
     private Color color;
+    @Override
+    public String toString() {
+        return "Car [x=" + x + ", y=" + y + ", carHeight=" + carHeight + ", carWidth=" + carWidth + "]";
+    }
+
     private int carHeight, carWidth;
     public boolean arrived = false;
     public boolean blocked = false;

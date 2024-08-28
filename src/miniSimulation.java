@@ -1,31 +1,46 @@
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.List;
 import java.util.ArrayList;
 
 public class miniSimulation {
     private int x, y;
-    private int size;
-    private int carSize;
-    private Color carColor;
+    private int height;
+    private int width;
+    private int carHeight;
+    private int carWidth;
+    private Color parkedCarColor;
+    private Color movingCarColor;
     private Color wallColor;
     private RectangleBox rectangleBox;
     private ArrayList<Car> parkedCars;
+    private Car movingCar;
+    private int startX;
+    private int startY;
 
-    public miniSimulation(int x, int y, int size, Color wallColor, Color carColor) {
+    public miniSimulation(int x, int y, int height, int width, Color wallColor, Color parkedCarColor, int carHeight, int carWidth, Color movingCarColor) {
         // dimensioning
         this.x = x;
         this.y = y;
-        this.size = size;
-        this.carSize = size/4;
+        this.height = height;
+        this.width = width;
         this.wallColor = wallColor;
-        this.carColor = carColor;
+        this.parkedCarColor = parkedCarColor;
+        this.movingCarColor = movingCarColor;
         // parking
         this.parkedCars = new ArrayList<>();
-        this.parkedCars.add(new Car(x + 2*4*size/3/5, y + size/16, carSize, carSize*2/3, carColor));
-        this.parkedCars.add(new Car(x + 2*4*size/3/5, y + 11*size/16, carSize, carSize*2/3, carColor));
+        this.parkedCars.add(new Car(x + 2*8*width/3/9, y + width/16, carHeight, carWidth, parkedCarColor));
+        this.parkedCars.add(new Car(x + 2*8*height/3/9, y + 11*height/16, carHeight, carWidth, parkedCarColor));
+        // main car
+        this.startX = x + height/3;
+        this.startY = y + height/16;
+        this.movingCar = new Car(startX, startY, carHeight, carWidth, movingCarColor);
         // walls
-        this.rectangleBox = new RectangleBox(x, y, size, wallColor);
+        this.rectangleBox = new RectangleBox(x, y, height, wallColor);
+    }
+
+    @Override
+    public String toString() {
+        return "miniSimulation [parkedCars=" + parkedCars + "]";
     }
 
     public void draw(Graphics g) {
@@ -33,5 +48,23 @@ public class miniSimulation {
         for(Car c : parkedCars){
             c.draw(g);
         }
+        movingCar.draw(g);
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+
+    public Color getParkedCarColor() {
+        return parkedCarColor;
+    }
+
+    public Color getWallColor() {
+        return wallColor;
     }
 }

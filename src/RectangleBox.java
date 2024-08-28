@@ -1,18 +1,18 @@
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.List;
 import java.util.ArrayList;
 
 public class RectangleBox {
     private int x, y;
-    private int size;
     private Color color;
+    private int size;
     private ArrayList<CustomLine> lines ;
 
     public RectangleBox(int x, int y, int size, Color color) {
         this.x = x;
         this.y = y;
         this.color = color;
+        this.size = size;
         lines = new ArrayList<>();
         this.lines.add(new CustomLine(x, y, x+4*size/5, y));
         this.lines.add(new CustomLine(x, y, x, y+size));
@@ -25,6 +25,14 @@ public class RectangleBox {
         for(CustomLine c : lines){
             c.draw(g);
         }
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public int getSize() {
+        return size;
     }
 
     public int getX() {
