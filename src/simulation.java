@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.AffineTransform;
 
 public class simulation {
     // frame parameters
@@ -35,6 +36,7 @@ public class simulation {
     private Timer timer;
     private int miniSimulationRowNumber = 1;
     private int miniSimulationColumnNumber = 1;
+    private int offset = 30;
     // evolution
     private JButton evolutionStartButton;
     private JButton evolutionPauseButton;
@@ -64,15 +66,17 @@ public class simulation {
         wallWidth = 2*wallHeight/3;
         carHeight = wallHeight/4;
         carWidth = carHeight*2/3;
-        int xi = (int) wallHeight/(miniSimulationColumnNumber+1);
-        int yi = (int) wallHeight/(miniSimulationRowNumber+1);
+        int x0 = (int) wallHeight/(miniSimulationColumnNumber+1);
+        int y0 = (int) wallHeight/(miniSimulationRowNumber+1) - offset;
+        int xi = x0;
+        int yi = y0;
         for(int i = 0 ; i<miniSimulationRowNumber ; i++){
-            xi = wallHeight/(miniSimulationColumnNumber+1);
+            xi = x0;
             for(int j = 0; j<miniSimulationColumnNumber; j++){
                 miniSimulations.add(new miniSimulation(xi, yi, wallHeight, wallWidth, wallColor, parkedCarColor, carHeight, carWidth, carColor));
-                xi += xi + wallHeight ;
+                xi += x0 + wallHeight ;
             }
-            yi += yi + wallHeight;
+            yi += y0 + wallHeight;
         }
         System.out.println(miniSimulations);
         // // add a wall by clicking
@@ -101,50 +105,65 @@ public class simulation {
         // buttons
         startButton = new JButton("Start");
         pauseButton = new JButton("Pause");
-        resetButton = new JButton("Reset particles");
+        resetButton = new JButton("Reset cars");
 
         startButton.setBackground(Color.GREEN);
         pauseButton.setBackground(new Color(255,60,60));
         resetButton.setBackground(new Color(110,110,255));
 
-        /* 
         timer = new Timer(5, e -> {
-            for (Particule p : particles) {
-                if(!p.isArrived(endLine) && !p.isBlocked(walls)){
-                    p.update();
-                }
+            for (miniSimulation m : miniSimulations) {
+                Car movingCar = m.getMovingCar();
+                movingCar.update();
             }
             panel.repaint();
-            if(checkSimulationEnd()){
-                System.out.println("Simulation ended!");
-                timer.stop();
-                if(evolving){
-                    System.out.println("evolving...");
-                    evolutionTimer.start();
-                }
-            }
+            // if(checkSimulationEnd()){
+            //     System.out.println("Simulation ended!");
+            //     timer.stop();
+            //     if(evolving){
+            //         System.out.println("evolving...");
+            //         evolutionTimer.start();
+            //     }
+            // }
         });
-        
+
         startButton.addActionListener(e -> {
             System.out.println("Simulation started!");
-            for(Particule p : particles){
-                p.atStart = false;
+            for(miniSimulation ms : miniSimulations){
+                Car movingCar = ms.getMovingCar(); 
+                movingCar.setAngularSpeed(0.01);
+                movingCar.setTranslationSpeed(3);
+                movingCar.setTurning(true);
             }
             timer.start();
         });
 
+
         pauseButton.addActionListener(e -> {
-            System.out.println("Simulation paused!");
-            timer.stop();
+            //System.out.println("Simulation paused!");
+            // timer.stop();
+
+            // for testing
+            for(miniSimulation ms : miniSimulations){
+                Car movingCar = ms.getMovingCar();
+                movingCar.setTurning(false);
+                movingCar.setMoving(true);
+            }
         });
 
         resetButton.addActionListener(e -> {
             System.out.println("Reset!");
             timer.stop();
-            particles = newParticlesSet(particlesNumber);
+            for(miniSimulation ms : miniSimulations){
+                Car movingCar = ms.getMovingCar();
+                movingCar.setXA(ms.getStartX());
+                movingCar.setYA(ms.getStartY());
+                movingCar.setAngle(0);
+                movingCar.setTurning(false);
+                movingCar.setMoving(false);
+            }
             panel.repaint();
         });
-        */
 
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.setBackground(backgroundColor);

@@ -28,7 +28,7 @@ public class miniSimulation {
         this.movingCarColor = movingCarColor;
         // parking
         this.parkedCars = new ArrayList<>();
-        this.parkedCars.add(new Car(x + 2*8*width/3/9, y + width/16, carHeight, carWidth, parkedCarColor));
+        this.parkedCars.add(new Car(x + 2*8*height/3/9, y + width/16, carHeight, carWidth, parkedCarColor));
         this.parkedCars.add(new Car(x + 2*8*height/3/9, y + 11*height/16, carHeight, carWidth, parkedCarColor));
         // main car
         this.startX = x + height/3;
@@ -36,6 +36,18 @@ public class miniSimulation {
         this.movingCar = new Car(startX, startY, carHeight, carWidth, movingCarColor);
         // walls
         this.rectangleBox = new RectangleBox(x, y, height, wallColor);
+    }
+
+    public Car getMovingCar() {
+        return movingCar;
+    }
+
+    public int getStartX() {
+        return startX;
+    }
+
+    public int getStartY() {
+        return startY;
     }
 
     @Override
